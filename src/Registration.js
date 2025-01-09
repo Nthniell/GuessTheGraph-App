@@ -40,7 +40,7 @@ const Registration = () => {
 
   return(
     <View style = {styles.container}>
-      <Text style = {{fontWeight: 'bold', fontSize: 24}}>
+      <Text style = {{fontWeight: 'bold', fontSize: 24, fontFamily: 'Arial'}}>
         Register for an account
       </Text>
       <View style = {{marginTop: 40}}>
@@ -93,10 +93,13 @@ const styles = StyleSheet.create({
     backgroundColor: 'white'
   },
   textInput: {
+    fontFamily: 'Arial',
     paddingTop: 20,
     paddingBottom: 10,
     width: 300,
     fontSize: 16,
+    borderWidth: 1,
+    borderColor: '#000',
     borderRadius: 10,
     borderBottomWidth: 1,
     borderBottomColor: '#000',
@@ -104,6 +107,7 @@ const styles = StyleSheet.create({
     textAlign: 'center'
   },
   button: {
+    fontFamily: 'Arial',
     marginTop: 50,
     height: 70,
     width: 250,

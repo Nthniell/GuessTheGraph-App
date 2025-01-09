@@ -6,8 +6,10 @@ import { firebase } from "../config";
 
 import Login from "../src/Login";
 import Registration from "../src/Registration";
-import Dashboard from "../src/Dashboard";
+import Home from "../src/Home";
 import Header from "../components/Header";
+import Profile from "../src/Profile";
+import Header_app from "../components/Header_app";
 
 
 const Stack = createStackNavigator();
@@ -37,7 +39,7 @@ function App() {
                 options={{
                     headerTitle: () => <Header name="Guess The Graph" />,
                     headerStyle: {
-                        height: 150,
+                        height: 110,
                         borderBottomLeftRadius: 50,
                         borderBottomRightRadius: 50,
                         backgroundColor: '#77AAFF',
@@ -52,7 +54,7 @@ function App() {
                 options={{
                     headerTitle: () => <Header name="Guess The Graph" />,
                     headerStyle: {
-                        height: 150,
+                        height: 110,
                         borderBottomLeftRadius: 50,
                         borderBottomRightRadius: 50,
                         backgroundColor: '#77AAFF',
@@ -67,18 +69,18 @@ function App() {
     return (
         <Stack.Navigator>
             <Stack.Screen 
-            name="Dashboard"
-            component={Dashboard}
+            name="Home"
+            component={Home}
             options={{
-                headerTitle: () => <Header name="Dashboard" />,
-                headerStyle: {
-                    height: 150,
-                    borderBottomLeftRadius: 50,
-                    borderBottomRightRadius: 50,
-                    backgroundColor: '#77AAFF',
-                    shadowColor: '#000',
-                    elevation: 25,
-                }
+                headerTitle: () => <Header_app/>,
+                // headerStyle: {
+                //     height: 110,
+                //     borderBottomLeftRadius: 50,
+                //     borderBottomRightRadius: 50,
+                //     backgroundColor: '#77AAFF',
+                //     shadowColor: '#000',
+                //     elevation: 25,
+                // }
             }}
             />
         </Stack.Navigator>

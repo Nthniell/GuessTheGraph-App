@@ -27,6 +27,12 @@
       "output": "static",
       "favicon": "./assets/images/favicon.png"
     },
+    "fonts": [
+      {
+        "asset": "./assets/fonts/ARIAL.ttf",
+        "family": "Arial"
+      }
+    ],
     "plugins": [
       "expo-router",
       [

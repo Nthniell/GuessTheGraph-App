@@ -18,7 +18,7 @@ const Login = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={{fontWeight: 'bold', fontSize: 24}}>
+      <Text style={{fontWeight: 'bold', fontSize: 24, fontFamily: 'Arial'}}>
         Login to your account
       </Text>
       <View style={{marginTop: 40}}>
@@ -42,13 +42,13 @@ const Login = () => {
         onPress={() => loginUser(email, password)}
         style={styles.button}
       >
-        <Text style={{fontWeight: 'bold', fontSize: 22}}> Login </Text>
+        <Text style={{fontWeight: 'bold', fontSize: 22, fontFamily: 'Arial'}}> Login </Text>
       </TouchableOpacity>
       <TouchableOpacity
         onPress={() => navigation.navigate('Registration')}
         style={{marginTop: 20}}
       >
-        <Text style={{fontWeight: 'bold', fontSize: 16}}> Register Here </Text>
+        <Text style={{fontWeight: 'bold', fontSize: 16, fontFamily: 'Arial'}}> Register Here </Text>
       </TouchableOpacity>      
     </View>
 
@@ -68,6 +68,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white'
   },
   textInput: {
+    fontFamily: 'Arial',
     paddingTop: 20,
     paddingBottom: 10,
     width: 300,
@@ -75,10 +76,14 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderBottomWidth: 1,
     borderBottomColor: '#000',
+    borderWidth: 1,
+    borderColor: '#000',
     marginBottom: 20,
-    textAlign: 'center'
+    textAlign: 'center',
+    alignContent: 'center'
   },
   button: {
+    fontFamily: 'Arial',
     marginTop: 50,
     height: 70,
     width: 250,
