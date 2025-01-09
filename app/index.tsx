@@ -1,15 +1,6 @@
-import { Text, View } from "react-native";
+import { NavigationContainer } from "@react-navigation/native";
+import App from './app';
 
 export default function Index() {
-  return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      <Text>You are entering App Landing Page</Text>
-    </View>
-  );
+  return <App />;
 }
