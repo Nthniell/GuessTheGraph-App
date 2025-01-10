@@ -69,19 +69,18 @@ function App() {
     return (
         <Stack.Navigator>
             <Stack.Screen 
-            name="Home"
-            component={Home}
-            options={{
-                headerTitle: () => <Header_app/>,
-                // headerStyle: {
-                //     height: 110,
-                //     borderBottomLeftRadius: 50,
-                //     borderBottomRightRadius: 50,
-                //     backgroundColor: '#77AAFF',
-                //     shadowColor: '#000',
-                //     elevation: 25,
-                // }
-            }}
+                name="Home"
+                component={Home}
+                options={{
+                    headerTitle: () => <Header_app/>,
+                }}
+            />
+            <Stack.Screen
+                name="Profile"
+                component={Profile}
+                options={{
+                    headerTitle: () => <Header_app/>,
+                }}
             />
         </Stack.Navigator>
     );
