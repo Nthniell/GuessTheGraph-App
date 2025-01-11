@@ -41,6 +41,7 @@ const Bottom_tab = () => {
         tabBarActiveTintColor: '#77AAFF',
         tabBarInactiveTintColor: 'gray',
         tabBarStyle: styles.tabBar,
+        tabBarItemStyle: styles.tabBarItem,
         headerShown: false,
       })}
     >
@@ -56,14 +57,10 @@ export default Bottom_tab;
 
 const styles = StyleSheet.create({
   tabBar: {
-    position: 'absolute',
-    bottom: 25,
-    left: 20,
-    right: 20,
-    elevation: 0,
-    backgroundColor: '#ffffff',
     borderRadius: 15,
     height: 90,
+    marginHorizontal: 20,
+    marginBottom: 10,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -72,5 +69,10 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.5,
     elevation: 5,
+  },
+  tabBarItem: {
+    top: 20,
+    paddingBottom: 0, 
+    height: 70, 
   },
 });
