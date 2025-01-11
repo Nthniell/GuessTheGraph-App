@@ -19,16 +19,11 @@ const Header_app = () => {
             />
           </TouchableOpacity>
         </View>
-        <View>
-          <TouchableOpacity
-            onPress={() => navigation.navigate('Home')}
-            style={{right: 185, bottom: 55}}
-          >
+        <View style={{left: -175, top: -55}}>
             <Image
               source={require('../assets/images/logo.png')}
               style={styles.buttonImageIconStyle}
             />
-          </TouchableOpacity>
         </View>
     </View>
 

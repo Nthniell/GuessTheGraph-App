@@ -1,12 +1,12 @@
 import { View, Text } from 'react-native'
 import React from 'react'
 
-const Profile = () => {
+const GuessTheGraph = () => {
   return (
     <View>
-      <Text>this is  Profile</Text>
+      <Text>GuessTheGraph</Text>
     </View>
   )
 }
 
-export default Profile
+export default GuessTheGraph
