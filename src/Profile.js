@@ -1,8 +1,42 @@
-import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+  Alert,
+} from "react-native";
+import * as ImagePicker from "expo-image-picker";
 import { firebase } from "../config"; // Pastikan Firebase diimpor
 
 const Profile = () => {
+  const [avatarUri, setAvatarUri] = useState("https://via.placeholder.com/100");
+  const [user, setUser] = useState(null);
+  const [fullName, setFullName] = useState(""); // State untuk menyimpan nama lengkap
+
+  useEffect(() => {
+    const currentUser = firebase.auth().currentUser;
+    if (currentUser) {
+      setUser(currentUser);
+      const userProfileRef = firebase
+        .firestore()
+        .collection("users")
+        .doc(currentUser.uid);
+
+      userProfileRef.get().then((doc) => {
+        if (doc.exists) {
+          const userData = doc.data();
+          const firstName = userData.firstName || "";
+          const lastName = userData.lastName || "";
+          setFullName(`${firstName} ${lastName}`); // Gabungkan firstName dan lastName
+
+          setAvatarUri(userData.avatarUrl || avatarUri); // Mengupdate avatar
+        }
+      });
+    }
+  }, []);
+
   const handleLogout = async () => {
     try {
       await firebase.auth().signOut();
@@ -13,16 +47,64 @@ const Profile = () => {
     }
   };
 
+  const handleChangeProfilePicture = async () => {
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (permission.granted) {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        quality: 1,
+      });
+
+      if (!result.cancelled) {
+        const uri = result.uri;
+        setAvatarUri(uri);
+        uploadImage(uri);
+      }
+    } else {
+      Alert.alert(
+        "Permission Denied",
+        "You need to grant permission to access the gallery."
+      );
+    }
+  };
+
+  const uploadImage = async (uri) => {
+    const response = await fetch(uri);
+    const blob = await response.blob();
+    const userId = firebase.auth().currentUser.uid;
+    const storageRef = firebase
+      .storage()
+      .ref()
+      .child(`profile_pictures/${userId}`);
+
+    try {
+      await storageRef.put(blob);
+      const downloadUrl = await storageRef.getDownloadURL();
+      const userProfileRef = firebase
+        .firestore()
+        .collection("users")
+        .doc(userId);
+      await userProfileRef.update({ avatarUrl: downloadUrl });
+
+      Alert.alert(
+        "Profile Picture Updated",
+        "Your profile picture has been updated."
+      );
+    } catch (error) {
+      console.error("Error uploading image: ", error);
+      Alert.alert("Error", "There was an error uploading your image.");
+    }
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.card}>
         <View style={styles.avatarContainer}>
-          <Image
-            source={{ uri: "https://via.placeholder.com/100" }}
-            style={styles.avatar}
-          />
+          <TouchableOpacity onPress={handleChangeProfilePicture}>
+            <Image source={{ uri: avatarUri }} style={styles.avatar} />
+          </TouchableOpacity>
         </View>
-        <Text style={styles.name}>Your Name</Text>
+        <Text style={styles.name}>{fullName || "Your Name"}</Text>
         <View style={styles.infoContainer}>
           <View style={styles.infoItem}>
             <View style={styles.iconCircle}>
