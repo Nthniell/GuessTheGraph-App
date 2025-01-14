@@ -1,172 +1,127 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import React, { useEffect, useState } from 'react';
+import { View, Text, TextInput, Button, StyleSheet, Dimensions, ScrollView } from 'react-native';
+import Svg, { Path, Line, Text as SvgText } from 'react-native-svg';
+import * as math from 'mathjs';
+import { compile, range } from 'mathjs';
 
-const Stack = createNativeStackNavigator();
+const GraphDisplay = ({ equation, width, height, points }) => {
+  const xMin = -100;
+  const xMax = 100;
+  const yMin = -100;
+  const yMax = 100;
 
-// Level Selection Screen
-const LevelSelectionScreen = ({ navigation }) => {
-  const levels = [1, 2, 3];
+  const transformX = (x) => ((x - xMin) / (xMax - xMin)) * width;
+  const transformY = (y) => height - ((y - yMin) / (yMax - yMin)) * height;
+
+  const generatePath = () => {
+    return points.map((point, index) => `${index === 0 ? 'M' : 'L'} ${transformX(point.x)},${transformY(point.y)}`).join(' ');
+  };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>Pilih Level</Text>
-      <View style={styles.gridContainer}>
-        {levels.map((level) => (
-          <TouchableOpacity
-            key={level}
-            style={styles.levelButton}
-            onPress={() => navigation.navigate('LevelDetail', { level })}
-          >
-            <Text style={styles.levelButtonText}>Level {level}</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-    </SafeAreaView>
+    <Svg width={width} height={height}>
+      <Line x1={transformX(0)} y1={0} x2={transformX(0)} y2={height} stroke="black" strokeWidth="1" />
+      <Line x1={0} y1={transformY(0)} x2={width} y2={transformY(0)} stroke="black" strokeWidth="1" />
+      <Path d={generatePath()} stroke="blue" strokeWidth="2" fill="none" />
+      <SvgText x="5" y="15" fill="black" fontSize="12">{equation}</SvgText>
+    </Svg>
   );
 };
 
-// Level Detail Screen
-const LevelDetailScreen = ({ route }) => {
-  const { level } = route.params;
+const GuessTheGraph = () => {
+  const [equation, setEquation] = useState('');
+  const [points, setPoints] = useState([]);
+  const [gameMessage, setGameMessage] = useState('');
+  const width = Dimensions.get('window').width - 32;
+  const height = width;
+
+  const plotGraph = () => {
+    if (!equation.trim()) {
+      setPoints([]);
+      return;
+    }
+
+    try {
+      // Create x values from -100 to 100
+      const xValues = Array.from({ length: 201 }, (_, i) => -100 + i);
+      const yValues = [];
+
+      // Sanitize equation by replacing ^ with ** for proper power operation
+      const sanitizedEquation = equation.replace(/\^/g, '**');
+
+      // Calculate y values
+      for (let x of xValues) {
+        try {
+          const scope = { x: x };
+          const y = math.evaluate(sanitizedEquation, scope);
+          if (typeof y === 'number' && !isNaN(y) && Math.abs(y) < 1000) {
+            yValues.push({ x, y });
+          }
+        } catch (e) {
+          continue;
+        }
+      }
+
+      setPoints(yValues);
+    } catch (error) {
+      console.error('Invalid equation:', error);
+      setPoints([]);
+    }
+  };
+
+  const checkGuess = () => {
+    const correctEquation = 'x^2 + 2*x + 1'; // Example game equation
+    if (equation === correctEquation) {
+      setGameMessage('Jawaban Anda benar!');
+    } else {
+      setGameMessage('Jawaban Anda salah. Coba lagi!');
+    }
+  };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.questionContainer}>
-        <View style={styles.questionHeader}>
-          <Text style={styles.questionText}>Masukkan Persamaan x^2+1</Text>
-          <TouchableOpacity>
-            <Text style={styles.closeButton}>✕</Text>
-          </TouchableOpacity>
-        </View>
-        
-        <View style={styles.graphContainer}>
-          <Text style={styles.graphText}>Grafik Soal</Text>
-        </View>
-        
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity style={[styles.actionButton, styles.plotButton]}>
-            <Text style={styles.buttonText}>Plot</Text>
-          </TouchableOpacity>
-          
-          <TouchableOpacity style={[styles.actionButton, styles.checkButton]}>
-            <Text style={styles.buttonText}>Cek Jawaban</Text>
-          </TouchableOpacity>
-          
-          <TouchableOpacity style={[styles.actionButton, styles.deleteButton]}>
-            <Text style={styles.buttonText}>Hapus</Text>
-          </TouchableOpacity>
-        </View>
+    <ScrollView contentContainerStyle={styles.container}>
+      <Text style={styles.title}>Guess the Graph</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="Masukkan persamaan (contoh: x^2 + 2*x + 1)"
+        value={equation}
+        onChangeText={setEquation}
+      />
+      <View style={styles.buttonContainer}>
+        <Button title="Plot Grafik" onPress={plotGraph} />
+        <Button title="Cek Jawaban" onPress={checkGuess} />
       </View>
-    </SafeAreaView>
+      <GraphDisplay equation={equation} width={width} height={height} points={points} />
+      <Text style={styles.message}>{gameMessage}</Text>
+    </ScrollView>
   );
 };
-
-// Main App Component
-export default function App() {
-  return (
-      <Stack.Navigator initialRouteName="LevelSelection">
-        <Stack.Screen 
-          name="LevelSelection" 
-          component={LevelSelectionScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen 
-          name="LevelDetail" 
-          component={LevelDetailScreen}
-          options={{ headerShown: false }}
-        />
-      </Stack.Navigator>
-
-  );
-}
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: '#fff',
+    padding: 16,
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    padding: 20,
+    marginBottom: 16,
   },
-  gridContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    padding: 10,
-    justifyContent: 'space-between',
-  },
-  levelButton: {
-    width: '45%',
-    aspectRatio: 1,
-    backgroundColor: '#f0f0f0',
-    margin: 8,
-    borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  levelButtonText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  questionContainer: {
-    flex: 1,
-    padding: 20,
-  },
-  questionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: '#f0f0f0',
-    padding: 10,
-    borderRadius: 8,
-    marginBottom: 20,
-  },
-  questionText: {
-    fontSize: 16,
-  },
-  closeButton: {
-    fontSize: 20,
-    color: '#666',
-  },
-  graphContainer: {
-    flex: 1,
-    backgroundColor: '#f0f0f0',
-    borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  graphText: {
-    fontSize: 18,
-    color: '#666',
+  input: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    padding: 8,
+    borderRadius: 4,
+    marginBottom: 16,
   },
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    gap: 10,
+    marginBottom: 16,
   },
-  actionButton: {
-    flex: 1,
-    padding: 15,
-    borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  plotButton: {
-    backgroundColor: '#007AFF',
-  },
-  checkButton: {
-    backgroundColor: '#007AFF',
-  },
-  deleteButton: {
-    backgroundColor: '#007AFF',
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '500',
+  message: {
+    marginTop: 16,
+    fontSize: 18,
+    color: 'green',
   },
 });
+
+export default GuessTheGraph;
