@@ -1,13 +1,24 @@
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
+import { firebase } from "../config"; // Pastikan Firebase diimpor
 
 const Profile = () => {
+  const handleLogout = async () => {
+    try {
+      await firebase.auth().signOut();
+      alert("You have logged out successfully");
+      // navigation.navigate("Login");
+    } catch (error) {
+      alert("Error logging out: " + error.message);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.card}>
         <View style={styles.avatarContainer}>
           <Image
-            source={{ uri: "https://via.placeholder.com/100" }} // Placeholder for avatar
+            source={{ uri: "https://via.placeholder.com/100" }}
             style={styles.avatar}
           />
         </View>
@@ -26,7 +37,7 @@ const Profile = () => {
             <Text style={styles.infoText}>Your Level</Text>
           </View>
         </View>
-        <TouchableOpacity style={styles.logoutButton}>
+        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
           <Text style={styles.logoutButtonText}>Log Out</Text>
         </TouchableOpacity>
       </View>
