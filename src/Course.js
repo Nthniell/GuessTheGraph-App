@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, Linking } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, Linking, Dimensions } from 'react-native';
 
 const Course = () => {
   const videos = [
@@ -33,6 +33,16 @@ const Course = () => {
       url: 'https://www.youtube.com/watch?v=tfF_-Db8iSA',
       title: 'Understanding Functional Graphs',
     },
+    {
+      id: '5xai-nzYqzk',
+      url: 'https://www.youtube.com/watch?v=5xai-nzYqzk',
+      title: 'Grafik Matematik TPT 1',
+    },
+    {
+      id: 'BPSHt3dkQXM',
+      url: 'https://www.youtube.com/watch?v=BPSHt3dkQXM',
+      title: 'Grafik Matematik TPT 2',
+    },
   ];
 
   const openLink = (url) => {
@@ -41,6 +51,9 @@ const Course = () => {
     );
   };
 
+  const { width } = Dimensions.get('window'); // Get screen width
+  const cardWidth = width < 768 ? width * 0.45 : width * 0.2; // Adjust card width based on screen size
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Grafik Fungsi</Text>
@@ -48,7 +61,7 @@ const Course = () => {
         {videos.map((video, index) => (
           <TouchableOpacity
             key={index}
-            style={styles.card}
+            style={[styles.card, { width: cardWidth }]} // Dynamically set width
             onPress={() => openLink(video.url)}
           >
             <Image
@@ -80,7 +93,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   card: {
-    width: '45%',
     backgroundColor: '#d3d3d3',
     borderRadius: 10,
     justifyContent: 'center',
