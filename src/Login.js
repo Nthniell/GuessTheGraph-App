@@ -5,6 +5,7 @@ import {
   TextInput,
   StyleSheet,
   ActivityIndicator,
+  Alert,
 } from "react-native";
 import React, { useState } from "react";
 import { useNavigation } from "@react-navigation/native";
@@ -19,12 +20,29 @@ const Login = () => {
   const loginUser = async (email, password) => {
     setLoading(true);
     try {
-      await firebase.auth().signInWithEmailAndPassword(email, password);
-      setLoading(false);
-      navigation.navigate("Home"); // Ganti 'Home' dengan nama halaman tujuan Anda setelah login
+      const userCredential = await firebase
+        .auth()
+        .signInWithEmailAndPassword(email, password);
+
+      const user = userCredential.user;
+
+      // Refresh user status
+      await user.reload();
+
+      if (user.emailVerified) {
+        setLoading(false);
+        navigation.navigate("Home"); // Ganti 'Home' dengan nama halaman tujuan Anda setelah login
+      } else {
+        setLoading(false);
+        Alert.alert(
+          "Email Verification Required",
+          "Please verify your email address before logging in."
+        );
+        await firebase.auth().signOut(); // Logout pengguna jika belum verifikasi
+      }
     } catch (error) {
       setLoading(false);
-      alert(error.message);
+      Alert.alert("Login Failed", error.message);
     }
   };
 
@@ -40,6 +58,7 @@ const Login = () => {
           onChangeText={(email) => setEmail(email)}
           autoCapitalize="none"
           autoCorrect={false}
+          keyboardType="email-address"
         />
         <TextInput
           style={styles.textInput}
@@ -53,6 +72,7 @@ const Login = () => {
       <TouchableOpacity
         onPress={() => loginUser(email, password)}
         style={styles.button}
+        disabled={loading} // Mencegah login saat loading
       >
         {loading ? (
           <ActivityIndicator size="large" color="#fff" />
@@ -60,8 +80,7 @@ const Login = () => {
           <Text
             style={{ fontWeight: "bold", fontSize: 22, fontFamily: "Arial" }}
           >
-            {" "}
-            Login{" "}
+            Login
           </Text>
         )}
       </TouchableOpacity>
@@ -70,8 +89,7 @@ const Login = () => {
         style={{ marginTop: 20 }}
       >
         <Text style={{ fontWeight: "bold", fontSize: 16, fontFamily: "Arial" }}>
-          {" "}
-          Register Here{" "}
+          Register Here
         </Text>
       </TouchableOpacity>
     </View>

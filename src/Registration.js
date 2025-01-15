@@ -20,30 +20,32 @@ const Registration = () => {
         .auth()
         .createUserWithEmailAndPassword(email, password);
 
+      const user = userCredential.user;
+
       // Kirim email verifikasi
-      await userCredential.user.sendEmailVerification({
+      await user.sendEmailVerification({
         handleCodeInApp: true,
         url: "https://guessthegraph-app.firebaseapp.com",
       });
-      alert("Verification email sent");
 
-      // Simpan data pengguna ke Firestore
-      await firebase
-        .firestore()
-        .collection("users")
-        .doc(userCredential.user.uid)
-        .set({
-          email: email,
-          firstName: firstName,
-          lastName: lastName,
-        });
-
-      // Alert setelah data disimpan ke Firestore
       alert(
-        "Your data (First Name, Last Name, and Email) has been saved successfully to the database."
+        "Verification email sent. Please verify your email before logging in."
       );
 
-      alert("User registered successfully");
+      // Simpan data pengguna ke Firestore
+      await firebase.firestore().collection("users").doc(user.uid).set({
+        email: email,
+        firstName: firstName,
+        lastName: lastName,
+      });
+
+      // Tampilkan pesan untuk meminta verifikasi email
+      alert(
+        "Your account has been created. Please verify your email before proceeding."
+      );
+
+      // Sign out user to prevent access without verification
+      await firebase.auth().signOut();
     } catch (error) {
       console.error("Error during registration:", error.message);
       alert(error.message);
