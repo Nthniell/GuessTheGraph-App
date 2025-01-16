@@ -26,6 +26,16 @@ const GraphDisplay = ({ equation, width, height, points }) => {
   );
 };
 
+const convertExponents = (equation) => {
+  // Match patterns like x^2, x^3, etc.
+  return equation.replace(/x\^(\d+)/g, (match, power) => {
+    const times = parseInt(power);
+    if (times <= 1) return 'x';
+    // Create repeated multiplication (x*x*x) for power times
+    return Array(times).fill('x').join('*');
+  });
+};
+
 const GuessTheGraph = () => {
   const [equation, setEquation] = useState('');
   const [points, setPoints] = useState([]);
@@ -44,9 +54,8 @@ const GuessTheGraph = () => {
       const xValues = Array.from({ length: 401 }, (_, i) => -10 + (i * 0.05));
       const yValues = [];
 
-      // Normalisasi persamaan
-      let sanitizedEquation = equation
-        .replace(/\^/g, '**')           // Mengganti ^ dengan **
+      // Convert x^n to repeated multiplication before other sanitization
+      let sanitizedEquation = convertExponents(equation)
         .replace(/\s+/g, '')            // Menghapus spasi
         .replace(/[×]/g, '*')           // Mengganti × dengan *
         .toLowerCase();                  // Konversi ke lowercase
@@ -91,6 +100,7 @@ const GuessTheGraph = () => {
         value={equation}
         onChangeText={setEquation}
       />
+      <Text style={styles.message}>Note: untuk setiap perpangkatan buatlah dalam bentuk x*x sebanyak n kali. Contoh: x^3 maka input sebagai (x*x*x)</Text>
       <View style={styles.buttonContainer}>
         <Button title="Plot Grafik" onPress={plotGraph} />
         <Button title="Cek Jawaban" onPress={checkGuess} />
@@ -123,9 +133,16 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   message: {
-    marginTop: 16,
-    fontSize: 18,
-    color: 'green',
+    marginTop: 5,
+    fontSize: 15,
+    marginBottom: 5,
+    marginRight: 5,
+    marginLeft: 5,
+    color: '#448EE4',
+    borderColor: '#448EE4',
+    borderWidth: 1,
+    borderRadius: 5,
+    
   },
 });
 

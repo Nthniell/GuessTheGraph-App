@@ -3,7 +3,7 @@ import { StyleSheet, Image } from 'react-native';
 import React from 'react';
 
 import Home from '../src/Home';
-import GuessTheGraph from '../src/GuessTheGraph';
+import GuessTheGraph from '../src/GuessTheGraph_last';
 import Course from '../src/Course';
 import Profile from '../src/Profile';
 // import Game from '../src/Game';
