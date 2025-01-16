@@ -1,18 +1,9 @@
-import React, { useEffect } from "react";
-import {
-  View,
-  Text,
-  ScrollView,
-  StyleSheet,
-  Dimensions,
-  Alert,
-} from "react-native";
-import { firebase } from "../config"; // Pastikan Firebase diatur dengan benar
-import Svg, { Path, Line, Text as SvgText } from "react-native-svg";
-import { useNavigation } from "@react-navigation/native"; // Navigasi untuk redirect
+import React , { useEffect}from 'react';
+import { View, Text, ScrollView, StyleSheet, Dimensions } from 'react-native';
+import Svg, { Path, Line, Text as SvgText } from 'react-native-svg';
 
 const GraphDisplay = ({ equation, width, height }) => {
-  // ... (kode GraphDisplay tetap sama)  // Mengubah skala untuk visualisasi yang lebih baik
+  // Mengubah skala untuk visualisasi yang lebih baik
   const xMin = -3;
   const xMax = 3;
   const yMin = -3;
@@ -21,20 +12,116 @@ const GraphDisplay = ({ equation, width, height }) => {
   const transformX = (x) => {
     return ((x - xMin) / (xMax - xMin)) * width;
   };
-};
 
-const transformY = (y) => {
-  // Batasi nilai y agar tidak keluar dari area grafik
-  const clampedY = Math.max(yMin, Math.min(yMax, y));
-  return height - ((clampedY - yMin) / (yMax - yMin)) * height;
-};
+  const transformY = (y) => {
+    // Batasi nilai y agar tidak keluar dari area grafik
+    const clampedY = Math.max(yMin, Math.min(yMax, y));
+    return height - ((clampedY - yMin) / (yMax - yMin)) * height;
+  };
 
+  const generatePoints = (func) => {
+    let points = [];
+    // Tambah kepadatan titik untuk kurva yang lebih halus
+    for (let x = xMin; x <= xMax; x += 0.05) {
+      const y = func(x);
+      if (!isNaN(y) && isFinite(y)) {  // Hanya tambahkan point yang valid
+        points.push(`${transformX(x)},${transformY(y)}`);
+      }
+    }
+    return points.length > 0 ? `M ${points.join(' L ')}` : '';
+  };
+
+  const getFunctionPath = () => {
+    switch (equation) {
+      case 'y = x²':
+        return generatePoints(x => x * x);
+      case 'y = -x²':
+        return generatePoints(x => -x * x);
+      case 'y = |x|':
+        return generatePoints(x => Math.abs(x));
+      case 'y = -|x|':
+        return generatePoints(x => -Math.abs(x));
+      case 'y = x²-x+1':
+        return generatePoints(x => Math.pow(x, 2) - x + 1);
+      case 'y = sin(x)':
+        return generatePoints(x => Math.sin(x * Math.PI));
+      default:
+        return '';
+    }
+  };
+
+  return (
+    <Svg width={width} height={height}>
+      {/* Grid lines */}
+      {Array.from({ length: 7 }, (_, i) => i - 3).map(i => (
+        <React.Fragment key={`grid-${i}`}>
+          <Line
+            x1={transformX(i)}
+            y1={0}
+            x2={transformX(i)}
+            y2={height}
+            stroke="#ddd"
+            strokeWidth="0.5"
+          />
+          <Line
+            x1={0}
+            y1={transformY(i)}
+            x2={width}
+            y2={transformY(i)}
+            stroke="#ddd"
+            strokeWidth="0.5"
+          />
+        </React.Fragment>
+      ))}
+      
+      {/* Axes */}
+      <Line
+        x1={transformX(xMin)}
+        y1={transformY(0)}
+        x2={transformX(xMax)}
+        y2={transformY(0)}
+        stroke="black"
+        strokeWidth="1"
+      />
+      <Line
+        x1={transformX(0)}
+        y1={transformY(yMin)}
+        x2={transformX(0)}
+        y2={transformY(yMax)}
+        stroke="black"
+        strokeWidth="1"
+      />
+      
+      {/* Function graph */}
+      <Path
+        d={getFunctionPath()}
+        stroke="blue"
+        strokeWidth="2"
+        fill="none"
+      />
+      
+      {/* Equation */}
+      <SvgText
+        x="5"
+        y="15"
+        fill="black"
+        fontSize="12"
+      >
+        {equation}
+      </SvgText>
+    </Svg>
+  );
+};
 
 export default function Home() {
-  const navigation = useNavigation(); // Untuk navigasi ke halaman lain
+  const graphs = [
+    { id: 1, equation: 'y = x²' },
+    { id: 2, equation: 'y = -x²' },
+    { id: 3, equation: 'y = x²-x+1' },
+    { id: 4, equation: 'y = sin(x)' },
+  ];
 
-
-  // Logika pemeriksaan autentikasi dan verifikasi
+  const graphSize = (Dimensions.get('window').width - 48) / 2;
   const checkAuthenticationAndVerification = async () => {
     const user = firebase.auth().currentUser;
 
@@ -47,24 +134,7 @@ export default function Home() {
       navigation.navigate("Login"); // Pastikan ada halaman Login
       return;
     }
-    const getFunctionPath = () => {
-      switch (equation) {
-        case 'y = x²':
-          return generatePoints(x => x * x);
-        case 'y = -x²':
-          return generatePoints(x => -x * x);
-        case 'y = |x|':
-          return generatePoints(x => Math.abs(x));
-        case 'y = -|x|':
-          return generatePoints(x => -Math.abs(x));
-        case 'y = x²-x+1':
-          return generatePoints(x => Math.pow(x, 2) - x + 1);
-        case 'y = sin(x)':
-          return generatePoints(x => Math.sin(x * Math.PI));
-        default:
-          return '';}
-        };
-
+  
     await user.reload(); // Refresh status user untuk mendapatkan status terbaru
 
     if (!user.emailVerified) {
@@ -78,45 +148,19 @@ export default function Home() {
     }
     
   };
-
-
+  
   useEffect(() => {
     checkAuthenticationAndVerification();
   }, []);
-  
-  const generatePoints = (func) => {
-    let points = [];
-    // Tambah kepadatan titik untuk kurva yang lebih halus
-    for (let x = xMin; x <= xMax; x += 0.05) {
-      const y = func(x);
-      if (!isNaN(y) && isFinite(y)) {  // Hanya tambahkan point yang valid
-        points.push(`${transformX(x)},${transformY(y)}`);
-      }
-    }
-    return points.length > 0 ? `M ${points.join(' L ')}` : '';
-  };
-
-
-  const graphs = [
-    { id: 1, equation: "y = x²" },
-    { id: 2, equation: "y = -x²" },
-    { id: 3, equation: "y = x²-x+1" },
-    { id: 4, equation: "y = sin(x)" },
-  ];
-
-  const graphSize = (Dimensions.get("window").width - 48) / 2;
 
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <Text style={styles.title}>Apa itu Guess the Graph?</Text>
-
+        
         <View style={styles.infoBox}>
           <Text style={styles.infoText}>
-            Guess the Graph adalah permainan menebak yang berkaitan dengan
-            grafik fungsi. Guess the Graph merupakan game yang dapat diakses
-            oleh siapapun. Pilihlah pernyataan yang benar mengenai grafik fungsi
-            yang ditampilkan.
+            Guess the Graph adalah permainan menebak yang berkaitan dengan grafik fungsi. Guess the Graph merupakan game yang dapat diakses oleh siapapun. Pilihlah pernyataan yang benar mengenai grafik fungsi yang ditampilkan.
           </Text>
         </View>
 
@@ -128,8 +172,8 @@ export default function Home() {
               <View style={styles.graphBox}>
                 <GraphDisplay
                   equation={graph.equation}
-                  width={graphSize - 16} // Adjust for padding
-                  height={graphSize - 16} // Adjust for padding
+                  width={graphSize - 16}  // Adjust for padding
+                  height={graphSize - 16}  // Adjust for padding
                 />
               </View>
             </View>
@@ -138,16 +182,12 @@ export default function Home() {
 
         <View style={styles.infoBox}>
           <Text style={styles.infoText}>
-            Grafik fungsi adalah representasi visual dari hubungan antara
-            variabel. Misalnya pada bidang kartesius (sumbu x dan y), grafik
-            menunjukkan hubungan antara nilai x yang diinput ke fungsi dengan
-            output (y) yang dihasilkan karena fungsi.
+            Grafik fungsi adalah representasi visual dari hubungan antara variabel. Misalnya pada bidang kartesius (sumbu x dan y), grafik menunjukkan hubungan antara nilai x yang diinput ke fungsi dengan output (y) yang dihasilkan karena fungsi.
           </Text>
         </View>
       </ScrollView>
 
       <View style={styles.navigation}>
-        {/* Tambahkan tombol navigasi jika diperlukan */}
       </View>
     </View>
   );
