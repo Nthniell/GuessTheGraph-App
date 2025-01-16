@@ -3,99 +3,39 @@ import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Dimensions, Tex
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Svg, { Path, Line, Text as SvgText } from 'react-native-svg';
+import * as math from 'mathjs';
 
 const Stack = createNativeStackNavigator();
 
-const GraphDisplay = ({ equation, width, height }) => {
-  const xMin = -3;
-  const xMax = 3;
-  const yMin = -3;
-  const yMax = 3;
-  
-  const transformX = (x) => {
-    return ((x - xMin) / (xMax - xMin)) * width;
-  };
+const GraphDisplay = ({ equation, width, height, points }) => {
+  const xMin = -10;
+  const xMax = 10;
+  const yMin = -10;
+  const yMax = 10;
 
-  const transformY = (y) => {
-    const clampedY = Math.max(yMin, Math.min(yMax, y));
-    return height - ((clampedY - yMin) / (yMax - yMin)) * height;
-  };
+  const transformX = (x) => ((x - xMin) / (xMax - xMin)) * width;
+  const transformY = (y) => height - ((y - yMin) / (yMax - yMin)) * height;
 
-  const evaluateExpression = (expr, x) => {
-    try {
-      // Basic math operations
-      const expression = expr.replace(/\^/g, '**')  // Convert ^ to **
-                            .replace(/x/g, `(${x})`); // Replace x with actual value
-      return Function('"use strict";return (' + expression + ')')();
-    } catch (error) {
-      return NaN;
-    }
-  };
-
-  const generatePoints = (equation) => {
-    if (!equation) return '';
-    
-    let points = [];
-    for (let x = xMin; x <= xMax; x += 0.05) {
-      const y = evaluateExpression(equation, x);
-      if (!isNaN(y) && isFinite(y)) {
-        points.push(`${transformX(x)},${transformY(y)}`);
-      }
-    }
-    return points.length > 0 ? `M ${points.join(' L ')}` : '';
+  const generatePath = () => {
+    return points.map((point, index) => `${index === 0 ? 'M' : 'L'} ${transformX(point.x)},${transformY(point.y)}`).join(' ');
   };
 
   return (
     <Svg width={width} height={height}>
-      {/* Grid lines */}
-      {Array.from({ length: 7 }, (_, i) => i - 3).map(i => (
-        <React.Fragment key={`grid-${i}`}>
-          <Line
-            x1={transformX(i)}
-            y1={0}
-            x2={transformX(i)}
-            y2={height}
-            stroke="#ddd"
-            strokeWidth="0.5"
-          />
-          <Line
-            x1={0}
-            y1={transformY(i)}
-            x2={width}
-            y2={transformY(i)}
-            stroke="#ddd"
-            strokeWidth="0.5"
-          />
-        </React.Fragment>
-      ))}
-      
-      {/* Axes */}
-      <Line
-        x1={transformX(xMin)}
-        y1={transformY(0)}
-        x2={transformX(xMax)}
-        y2={transformY(0)}
-        stroke="black"
-        strokeWidth="1"
-      />
-      <Line
-        x1={transformX(0)}
-        y1={transformY(yMin)}
-        x2={transformX(0)}
-        y2={transformY(yMax)}
-        stroke="black"
-        strokeWidth="1"
-      />
-      
-      {/* Function graph */}
-      <Path
-        d={generatePoints(equation)}
-        stroke="blue"
-        strokeWidth="2"
-        fill="none"
-      />
+      <Line x1={transformX(0)} y1={0} x2={transformX(0)} y2={height} stroke="black" strokeWidth="1" />
+      <Line x1={0} y1={transformY(0)} x2={width} y2={transformY(0)} stroke="black" strokeWidth="1" />
+      <Path d={generatePath()} stroke="blue" strokeWidth="2" fill="none" />
+      <SvgText x="5" y="15" fill="black" fontSize="12">{equation}</SvgText>
     </Svg>
   );
+};
+
+const convertExponents = (equation) => {
+  return equation.replace(/x\^(\d+)/g, (match, power) => {
+    const times = parseInt(power);
+    if (times <= 1) return 'x';
+    return Array(times).fill('x').join('*');
+  });
 };
 
 // Level Selection Screen
@@ -125,20 +65,51 @@ const LevelDetailScreen = ({ route }) => {
   const graphWidth = Dimensions.get('window').width - 40; // 40 for padding
   const graphHeight = graphWidth;
   const [equation, setEquation] = useState('');
-  const [currentEquation, setCurrentEquation] = useState('');
+  const [points, setPoints] = useState([]);
   const [message, setMessage] = useState('');
 
   const getCorrectEquation = (level) => {
     switch(level) {
       case 1: return 'x^2';
       case 2: return '2*x^2';
-      case 3: return 'x^2+1';
+      case 3: return 'sin(x)';
       default: return 'x^2';
     }
   };
 
   const handlePlot = () => {
-    setCurrentEquation(equation);
+    if (!equation.trim()) {
+      setPoints([]);
+      return;
+    }
+
+    try {
+      const xValues = Array.from({ length: 401 }, (_, i) => -10 + (i * 0.05));
+      const yValues = [];
+
+      let sanitizedEquation = convertExponents(equation)
+        .replace(/\s+/g, '')
+        .replace(/[×]/g, '*')
+        .toLowerCase();
+
+      for (let x of xValues) {
+        try {
+          const scope = { x: x };
+          const y = math.evaluate(sanitizedEquation, scope);
+          
+          if (typeof y === 'number' && !isNaN(y) && Math.abs(y) < 1000) {
+            yValues.push({ x, y });
+          }
+        } catch (e) {
+          continue;
+        }
+      }
+
+      setPoints(yValues);
+    } catch (error) {
+      console.error('Invalid equation:', error);
+      setPoints([]);
+    }
   };
 
   const handleCheck = () => {
@@ -152,7 +123,7 @@ const LevelDetailScreen = ({ route }) => {
 
   const handleClear = () => {
     setEquation('');
-    setCurrentEquation('');
+    setPoints([]);
     setMessage('');
   };
 
@@ -171,15 +142,16 @@ const LevelDetailScreen = ({ route }) => {
             style={styles.equationInput}
             value={equation}
             onChangeText={setEquation}
-            placeholder="Masukkan persamaan (contoh: x^2)"
+            placeholder="Masukkan persamaan (Perkalian gunakan *)"
           />
         </View>
 
         <View style={styles.graphContainer}>
           <GraphDisplay
-            equation={currentEquation}
+            equation={equation}
             width={graphWidth}
             height={graphHeight}
+            points={points}
           />
         </View>
 
