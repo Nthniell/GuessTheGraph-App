@@ -12,11 +12,27 @@ import Svg, { Path, Line, Text as SvgText } from "react-native-svg";
 import { useNavigation } from "@react-navigation/native"; // Navigasi untuk redirect
 
 const GraphDisplay = ({ equation, width, height }) => {
-  // ... (kode GraphDisplay tetap sama)
+  // ... (kode GraphDisplay tetap sama)  // Mengubah skala untuk visualisasi yang lebih baik
+  const xMin = -3;
+  const xMax = 3;
+  const yMin = -3;
+  const yMax = 3;
+  
+  const transformX = (x) => {
+    return ((x - xMin) / (xMax - xMin)) * width;
+  };
 };
+
+const transformY = (y) => {
+  // Batasi nilai y agar tidak keluar dari area grafik
+  const clampedY = Math.max(yMin, Math.min(yMax, y));
+  return height - ((clampedY - yMin) / (yMax - yMin)) * height;
+};
+
 
 export default function Home() {
   const navigation = useNavigation(); // Untuk navigasi ke halaman lain
+
 
   // Logika pemeriksaan autentikasi dan verifikasi
   const checkAuthenticationAndVerification = async () => {
@@ -31,6 +47,23 @@ export default function Home() {
       navigation.navigate("Login"); // Pastikan ada halaman Login
       return;
     }
+    const getFunctionPath = () => {
+      switch (equation) {
+        case 'y = x²':
+          return generatePoints(x => x * x);
+        case 'y = -x²':
+          return generatePoints(x => -x * x);
+        case 'y = |x|':
+          return generatePoints(x => Math.abs(x));
+        case 'y = -|x|':
+          return generatePoints(x => -Math.abs(x));
+        case 'y = x²-x+1':
+          return generatePoints(x => Math.pow(x, 2) - x + 1);
+        case 'y = sin(x)':
+          return generatePoints(x => Math.sin(x * Math.PI));
+        default:
+          return '';}
+        };
 
     await user.reload(); // Refresh status user untuk mendapatkan status terbaru
 
@@ -43,11 +76,26 @@ export default function Home() {
       await firebase.auth().signOut();
       navigation.navigate("Login"); // Kembali ke halaman Login
     }
+    
   };
+
 
   useEffect(() => {
     checkAuthenticationAndVerification();
   }, []);
+  
+  const generatePoints = (func) => {
+    let points = [];
+    // Tambah kepadatan titik untuk kurva yang lebih halus
+    for (let x = xMin; x <= xMax; x += 0.05) {
+      const y = func(x);
+      if (!isNaN(y) && isFinite(y)) {  // Hanya tambahkan point yang valid
+        points.push(`${transformX(x)},${transformY(y)}`);
+      }
+    }
+    return points.length > 0 ? `M ${points.join(' L ')}` : '';
+  };
+
 
   const graphs = [
     { id: 1, equation: "y = x²" },
@@ -106,5 +154,63 @@ export default function Home() {
 }
 
 const styles = StyleSheet.create({
-  // ... (gaya tetap sama)
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
+  scrollContent: {
+    padding: 16,
+    
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 16,
+  },
+  subtitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginVertical: 16,
+  },
+  infoBox: {
+    backgroundColor: '#E3F2FD',
+    padding: 16,
+    borderRadius: 8,
+    marginVertical: 8,
+  },
+  infoText: {
+    color: '#1976D2',
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  graphGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    marginVertical: 16,
+  },
+  graphItem: {
+    width: '48%',
+    marginBottom: 16,
+  },
+  graphBox: {
+    aspectRatio: 1,
+    backgroundColor: '#F5F5F5',
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 8,
+    overflow: 'hidden'
+  },
+  graphEquation: {
+    fontSize: 16,
+    color: '#333',
+  },
+  navigation: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    borderTopWidth: 1,
+    borderTopColor: '#E0E0E0',
+  },
 });

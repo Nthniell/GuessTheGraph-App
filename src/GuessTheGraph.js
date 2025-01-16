@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Dimensions, ScrollView } from 'react-native';
 import Svg, { Path, Line, Text as SvgText } from 'react-native-svg';
 import * as math from 'mathjs';
-import { compile, range } from 'mathjs';
 
 const GraphDisplay = ({ equation, width, height, points }) => {
   const xMin = -100;
@@ -41,18 +40,24 @@ const GuessTheGraph = () => {
     }
 
     try {
-      // Create x values from -100 to 100
-      const xValues = Array.from({ length: 201 }, (_, i) => -100 + i);
+      // Menggunakan lebih banyak titik sampel untuk grafik yang lebih halus
+      const xValues = Array.from({ length: 401 }, (_, i) => -10 + (i * 0.05));
       const yValues = [];
 
-      // Sanitize equation by replacing ^ with ** for proper power operation
-      const sanitizedEquation = equation.replace(/\^/g, '**');
+      // Normalisasi persamaan
+      let sanitizedEquation = equation
+        .replace(/\^/g, '**')           // Mengganti ^ dengan **
+        .replace(/\s+/g, '')            // Menghapus spasi
+        .replace(/[×]/g, '*')           // Mengganti × dengan *
+        .toLowerCase();                  // Konversi ke lowercase
 
-      // Calculate y values
+      // Hitung nilai y
       for (let x of xValues) {
         try {
           const scope = { x: x };
           const y = math.evaluate(sanitizedEquation, scope);
+          
+          // Filter nilai yang valid
           if (typeof y === 'number' && !isNaN(y) && Math.abs(y) < 1000) {
             yValues.push({ x, y });
           }
