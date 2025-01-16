@@ -51,11 +51,11 @@ const Profile = () => {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (permission.granted) {
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        mediaTypes: [ImagePicker.MediaType.Images],
         quality: 1,
       });
 
-      if (!result.cancelled) {
+      if (!result.canceled) {
         const uri = result.uri;
         setAvatarUri(uri);
         uploadImage(uri);
