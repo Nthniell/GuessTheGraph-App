@@ -61,42 +61,42 @@ function App() {
 
     if (initializing) return null;
 
-    if (!user) {
-        return (
-            <Stack.Navigator>
-                <Stack.Screen 
-                name="Login"
-                component={Login}
-                options={{
-                    headerTitle: () => <Header name="Guess The Graph" />,
-                    headerStyle: {
-                        height: 110,
-                        borderBottomLeftRadius: 50,
-                        borderBottomRightRadius: 50,
-                        backgroundColor: '#77AAFF',
-                        shadowColor: '#000',
-                        elevation: 25,
-                    }
-                }}
-                />
-                <Stack.Screen 
-                name="Registration"
-                component={Registration}
-                options={{
-                    headerTitle: () => <Header name="Guess The Graph" />,
-                    headerStyle: {
-                        height: 110,
-                        borderBottomLeftRadius: 50,
-                        borderBottomRightRadius: 50,
-                        backgroundColor: '#77AAFF',
-                        shadowColor: '#000',
-                        elevation: 25,
-                    }
-                }}
-                />
-            </Stack.Navigator>
-        );
-    }
+    // if (!user) {
+    //     return (
+    //         <Stack.Navigator>
+    //             <Stack.Screen 
+    //             name="Login"
+    //             component={Login}
+    //             options={{
+    //                 headerTitle: () => <Header name="Guess The Graph" />,
+    //                 headerStyle: {
+    //                     height: 110,
+    //                     borderBottomLeftRadius: 50,
+    //                     borderBottomRightRadius: 50,
+    //                     backgroundColor: '#77AAFF',
+    //                     shadowColor: '#000',
+    //                     elevation: 25,
+    //                 }
+    //             }}
+    //             />
+    //             <Stack.Screen 
+    //             name="Registration"
+    //             component={Registration}
+    //             options={{
+    //                 headerTitle: () => <Header name="Guess The Graph" />,
+    //                 headerStyle: {
+    //                     height: 110,
+    //                     borderBottomLeftRadius: 50,
+    //                     borderBottomRightRadius: 50,
+    //                     backgroundColor: '#77AAFF',
+    //                     shadowColor: '#000',
+    //                     elevation: 25,
+    //                 }
+    //             }}
+    //             />
+    //         </Stack.Navigator>
+    //     );
+    // }
 
     return (
         <Stack.Navigator screenOptions={{ headerShown: false }}>

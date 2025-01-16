@@ -4,10 +4,10 @@ import Svg, { Path, Line, Text as SvgText } from 'react-native-svg';
 import * as math from 'mathjs';
 
 const GraphDisplay = ({ equation, width, height, points }) => {
-  const xMin = -100;
-  const xMax = 100;
-  const yMin = -100;
-  const yMax = 100;
+  const xMin = -10;
+  const xMax = 10;
+  const yMin = -10;
+  const yMax = 10;
 
   const transformX = (x) => ((x - xMin) / (xMax - xMin)) * width;
   const transformY = (y) => height - ((y - yMin) / (yMax - yMin)) * height;

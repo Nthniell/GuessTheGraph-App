@@ -1,5 +1,5 @@
 import React , { useEffect }from 'react';
-import { View, Text, ScrollView, StyleSheet, Dimensions } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, Dimensions, Alert } from 'react-native';
 import Svg, { Path, Line, Text as SvgText } from 'react-native-svg';
 import { firebase } from "../config"; // Pastikan Firebase diatur dengan benar
 import { useNavigation } from "@react-navigation/native"; // Navigasi untuk redirect

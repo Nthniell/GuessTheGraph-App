@@ -8,7 +8,7 @@ width *= ratio;
 height *= ratio;
 
 functionPlot({
-  target: "#root",
+  target: "#quadratic",
   width,
   height,
   yAxis: { domain: [-1, 9] },
