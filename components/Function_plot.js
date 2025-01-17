@@ -1,5 +1,13 @@
 import functionPlot from "function-plot";
 
+const convertExponents = (equation) => {
+  return equation.replace(/x\^(\d+)/g, (match, power) => {
+    const times = parseInt(power);
+    if (times <= 1) return 'x';
+    return Array(times).fill('x').join('*');
+  });
+};
+
 let contentsBounds = document.body.getBoundingClientRect();
 let width = 800;
 let height = 500;
@@ -15,7 +23,7 @@ functionPlot({
   grid: true,
   data: [
     {
-      fn: "x^2",
+      fn: convertExponents("x^2"),
       derivative: {
         fn: "2 * x",
         updateOnMouseMove: true
