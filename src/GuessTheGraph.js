@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Dimensions, TextInput } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
+import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Dimensions, TextInput, navigation } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Svg, { Path, Line, Text as SvgText } from 'react-native-svg';
 import * as math from 'mathjs';
@@ -41,7 +40,7 @@ const convertExponents = (equation) => {
 
 // Level Selection Screen
 const LevelSelectionScreen = ({ navigation }) => {
-  const levels = [1, 2, 3];
+  const levels = [1, 2, 3, 4, 5];
 
   return (
     <SafeAreaView style={styles.container}>
@@ -63,7 +62,8 @@ const LevelSelectionScreen = ({ navigation }) => {
 
 const LevelDetailScreen = ({ route }) => {
   const { level } = route.params;
-  const graphWidth = Dimensions.get('window').width - 40; 
+  // Modify the width and height to be smaller (60% of original size)
+  const graphWidth = (Dimensions.get('window').width - 40) * 0.6;
   const graphHeight = graphWidth;
   const [equation, setEquation] = useState('');
   const [points, setPoints] = useState([]);
@@ -73,8 +73,10 @@ const LevelDetailScreen = ({ route }) => {
   const getCorrectEquation = (level) => {
     switch(level) {
       case 1: return 'x^2';
-      case 2: return '2*x^2';
-      case 3: return 'sin(x)';
+      case 2: return '2x^2-4x+1';
+      case 3: return 'x^3-3x^2+2';
+      case 4: return 'cos(x)';
+      case 5: return 'log(x)';
       default: return 'x^2';
     }
   };
@@ -164,9 +166,6 @@ const LevelDetailScreen = ({ route }) => {
       <View style={styles.questionContainer}>
         <View style={styles.questionHeader}>
           <Text style={styles.questionText}>Level {level}</Text>
-          <TouchableOpacity>
-            <Text style={styles.closeButton}>✕</Text>
-          </TouchableOpacity>
         </View>
         
         <View style={styles.inputContainer}>
@@ -174,7 +173,7 @@ const LevelDetailScreen = ({ route }) => {
             style={styles.equationInput}
             value={equation}
             onChangeText={setEquation}
-            placeholder="Masukkan persamaan (Perkalian gunakan *)"
+            placeholder="Masukkan persamaan (contoh: ax^2+bx+c)"
           />
         </View>
 
@@ -288,13 +287,14 @@ const styles = StyleSheet.create({
     color: '#666',
   },
   graphContainer: {
-    flex: 1,
+    flex: 0.8, // Reduce the flex value
     backgroundColor: '#f0f0f0',
     borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 20,
     padding: 10,
+    alignSelf: 'center', // Center the container
   },
   graphText: {
     fontSize: 18,
