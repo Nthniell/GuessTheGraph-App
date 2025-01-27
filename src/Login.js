@@ -8,8 +8,10 @@ import {
   Alert,
 } from "react-native";
 import React, { useState } from "react";
-import { useNavigation } from "@react-navigation/native";
-import { firebase } from "../config";
+import { firebase } from "../config"; // Pastikan Firebase sudah dikonfigurasi dengan benar
+import { useNavigation } from "@react-navigation/native"; // Import untuk navigasi
+import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore"; // Import Firestore
+import Home from "./Home";
 
 const Login = () => {
   const navigation = useNavigation();
@@ -26,20 +28,28 @@ const Login = () => {
 
       const user = userCredential.user;
 
-      // Refresh user status
       await user.reload();
 
-      if (user.emailVerified) {
-        setLoading(false);
-        navigation.navigate("Home"); // Ganti 'Home' dengan nama halaman tujuan Anda setelah login
+      const db = getFirestore();
+      const userRef = doc(db, "users", user.uid);
+      const userDoc = await getDoc(userRef);
+
+      if (userDoc.exists()) {
+        // Jika dokumen ada, kita bisa menggunakan data pengguna
+        console.log("User data:", userDoc.data());
+        // Buat dokumen di koleksi "user_level"
+        const userLevelRef = doc(db, "user_level", user.uid);
+        await setDoc(userLevelRef, {
+          level: [false, false, false, false, false],
+          score: 0,
+        });
+        console.log("User level data created for user:", user.uid);
       } else {
-        setLoading(false);
-        Alert.alert(
-          "Email Verification Required",
-          "Please verify your email address before logging in."
-        );
-        await firebase.auth().signOut(); // Logout pengguna jika belum verifikasi
+        console.log("No such document!");
       }
+
+      setLoading(false);
+      navigation.navigate(Home); // Pastikan nama layar sesuai dengan yang terdaftar di navigator
     } catch (error) {
       setLoading(false);
       Alert.alert("Login Failed", error.message);

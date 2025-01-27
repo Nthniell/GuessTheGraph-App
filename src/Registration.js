@@ -6,9 +6,11 @@ import {
   StyleSheet,
 } from "react-native";
 import React, { useState } from "react";
-import { firebase } from "../config"; // Pastikan Firebase sudah dikonfigurasi dengan benar
+import { firebase } from "../config";
+import { useNavigation } from "expo-router";
 
 const Registration = () => {
+  const navigation = useNavigation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [firstName, setFirstName] = useState("");
@@ -22,30 +24,58 @@ const Registration = () => {
 
       const user = userCredential.user;
 
-      // Kirim email verifikasi
-      await user.sendEmailVerification({
-        handleCodeInApp: true,
-        url: "https://guessthegraph-app.firebaseapp.com",
-      });
+      // Cek akun udah authenticated atau belum
+      if (firebase.auth().currentUser) {
+        console.log("User authenticated:", firebase.auth().currentUser.uid);
+      } else {
+        console.error("User is not authenticated!");
+      }
 
-      alert(
-        "Verification email sent. Please verify your email before logging in."
+      console.log(
+        "Current user after registration:",
+        firebase.auth().currentUser
       );
+      console.log("Verification email sent to:", email);
+      console.log("user uid:", user.uid);
+      // Cek Database users ada atau ngga
+      try {
+        // Cek koleksi "users" di Firestore
+        const snapshot = await firebase.firestore().collection("users").get();
 
+        // Jika koleksi ada tetapi kosong, snapshot.size akan 0
+        if (snapshot.empty) {
+          console.log("The 'users' collection exists, but it's empty.");
+        } else {
+          console.log("The 'users' collection exists and contains documents.");
+        }
+      } catch (error) {
+        console.error("Error checking 'users' collection:", error);
+      }
       // Simpan data pengguna ke Firestore
-      await firebase.firestore().collection("users").doc(user.uid).set({
-        email: email,
-        firstName: firstName,
-        lastName: lastName,
-      });
+      try {
+        console.log("Attempting to write to Firestore...");
+        await firebase.firestore().collection("users").doc(user.uid).set(
+          {
+            email: email,
+            firstName: firstName,
+            lastName: lastName,
+          },
+          { merge: true }
+        );
+        console.log("Write completed successfully.");
+      } catch (error) {
+        console.error("Error writing to Firestore:", error);
+        alert("Error writing to Firestore: " + error.message);
+      }
 
       // Tampilkan pesan untuk meminta verifikasi email
-      alert(
-        "Your account has been created. Please verify your email before proceeding."
-      );
+      // alert(
+      //   "Your account has been created. Please verify your email before proceeding."
+      // );
 
       // Sign out user to prevent access without verification
-      await firebase.auth().signOut();
+      firebase.auth().signOut();
+      navigation.navigate("Login");
     } catch (error) {
       console.error("Error during registration:", error.message);
       alert(error.message);
@@ -118,7 +148,7 @@ const styles = StyleSheet.create({
   },
   button: {
     marginTop: 50,
-    height: 70,
+    height: 60,
     width: 250,
     backgroundColor: "#77AAFF",
     alignItems: "center",

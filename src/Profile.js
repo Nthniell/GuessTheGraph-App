@@ -9,11 +9,14 @@ import {
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { firebase } from "../config"; // Pastikan Firebase diimpor
+import { getFirestore, doc, getDoc } from "firebase/firestore"; // Import Firestore
 
 const Profile = () => {
   const [avatarUri, setAvatarUri] = useState("https://via.placeholder.com/100");
   const [user, setUser] = useState(null);
   const [fullName, setFullName] = useState(""); // State untuk menyimpan nama lengkap
+  const [score, setScore] = useState(0); // State untuk menyimpan score
+  const [level, setLevel] = useState(0); // State untuk menyimpan level
 
   useEffect(() => {
     const currentUser = firebase.auth().currentUser;
@@ -34,6 +37,25 @@ const Profile = () => {
           setAvatarUri(userData.avatarUrl || avatarUri); // Mengupdate avatar
         }
       });
+
+      // Fetch user level and score from Firestore
+      const fetchUserLevelAndScore = async () => {
+        const db = getFirestore();
+        const userLevelRef = doc(db, "user_level", currentUser.uid);
+        const userLevelDoc = await getDoc(userLevelRef);
+
+        if (userLevelDoc.exists()) {
+          const userLevelData = userLevelDoc.data();
+          console.log("user score: ", userLevelData.score);
+          setScore(userLevelData.score || 0);
+
+          const lastTrueIndex = userLevelData.level.lastIndexOf(true);
+          console.log("user level: ", lastTrueIndex + 1);
+          setLevel(lastTrueIndex + 1); // Level is 1-based index
+        }
+      };
+
+      fetchUserLevelAndScore();
     }
   }, []);
 
@@ -108,13 +130,13 @@ const Profile = () => {
         <View style={styles.infoContainer}>
           <View style={styles.infoItem}>
             <View style={styles.iconCircle}>
-              <Text style={styles.iconText}>n</Text>
+              <Text style={styles.iconText}>{score}</Text>
             </View>
             <Text style={styles.infoText}>Your Score</Text>
           </View>
           <View style={styles.infoItem}>
             <View style={styles.iconCircle}>
-              <Text style={styles.iconText}>n</Text>
+              <Text style={styles.iconText}>{level}</Text>
             </View>
             <Text style={styles.infoText}>Your Level</Text>
           </View>

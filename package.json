@@ -36,7 +36,7 @@
     "expo-symbols": "~0.2.0",
     "expo-system-ui": "~4.0.5",
     "expo-web-browser": "~14.0.1",
-    "firebase": "^9.6.11",
+    "firebase": "^11.2.0",
     "function-plot": "^1.25.1",
     "math.js": "^1.1.46",
     "mathjs": "^14.0.1",
