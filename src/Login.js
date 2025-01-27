@@ -37,19 +37,26 @@ const Login = () => {
       if (userDoc.exists()) {
         // Jika dokumen ada, kita bisa menggunakan data pengguna
         console.log("User data:", userDoc.data());
-        // Buat dokumen di koleksi "user_level"
+
         const userLevelRef = doc(db, "user_level", user.uid);
-        await setDoc(userLevelRef, {
-          level: [false, false, false, false, false],
-          score: 0,
-        });
-        console.log("User level data created for user:", user.uid);
+        const userLevelDoc = await getDoc(userLevelRef);
+
+        if (!userLevelDoc.exists()) {
+          // Buat dokumen di koleksi "user_level" jika belum ada
+          await setDoc(userLevelRef, {
+            level: [false, false, false, false, false],
+            score: 0,
+          });
+          console.log("User level data created for user:", user.uid);
+        } else {
+          console.log("User level data already exists for user:", user.uid);
+        }
       } else {
         console.log("No such document!");
       }
 
       setLoading(false);
-      navigation.navigate(Home); // Pastikan nama layar sesuai dengan yang terdaftar di navigator
+      navigation.navigate("Home"); // Pastikan nama layar sesuai dengan yang terdaftar di navigator
     } catch (error) {
       setLoading(false);
       Alert.alert("Login Failed", error.message);

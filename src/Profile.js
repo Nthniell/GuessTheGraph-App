@@ -46,12 +46,12 @@ const Profile = () => {
 
         if (userLevelDoc.exists()) {
           const userLevelData = userLevelDoc.data();
+          setScore(userLevelData.score);
           console.log("user score: ", userLevelData.score);
-          setScore(userLevelData.score || 0);
 
           const lastTrueIndex = userLevelData.level.lastIndexOf(true);
-          console.log("user level: ", lastTrueIndex + 1);
           setLevel(lastTrueIndex + 1); // Level is 1-based index
+          console.log("user level: ", lastTrueIndex + 1);
         }
       };
 
