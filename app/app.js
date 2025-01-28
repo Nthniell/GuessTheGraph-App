@@ -1,4 +1,4 @@
-import { NavigationContainer } from "@react-navigation/native";
+
 import { createStackNavigator } from "@react-navigation/stack";
 import React, { useState, useEffect } from "react";
 import { firebase } from "../config";
@@ -8,8 +8,6 @@ import Registration from "../src/Registration";
 import Home from "../src/Home";
 import Header from "../components/Header";
 import Profile from "../src/Profile";
-import Course from "../src/Course";
-import GuessTheGraph from "../src/GuessTheGraph";
 
 import Header_app from "../components/Header_app";
 import Bottom_tab from "../components/Bottom_tab";

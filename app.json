@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "GuessTheGraph",
-    "slug": "GuessTheGraph",
+    "slug": "guessthegraph-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -20,7 +20,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#2E65FF"
-      }
+      },
+      "package": "com.PAWM.GuessTheGraph"
     },
     "web": {
       "bundler": "metro",
@@ -46,6 +47,15 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "20ca656e-ab0d-41e2-9a0a-d6af2d178420"
+      }
+    },
+    "owner": "18222114"
   }
 }

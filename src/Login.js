@@ -11,7 +11,6 @@ import React, { useState } from "react";
 import { firebase } from "../config"; // Pastikan Firebase sudah dikonfigurasi dengan benar
 import { useNavigation } from "@react-navigation/native"; // Import untuk navigasi
 import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore"; // Import Firestore
-import Home from "./Home";
 
 const Login = () => {
   const navigation = useNavigation();
@@ -121,7 +120,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: -100,
     justifyContent: "center",
-    backgroundColor: "white",
+    backgroundColor: "#fffff",
   },
   textInput: {
     fontFamily: "Arial",

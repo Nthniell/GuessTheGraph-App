@@ -7,4 +7,4 @@ npx expo install react-native-gesture-handler
 npm install firebase@9.6.11   
 
 # buat mulai 
-npx expo start
+npx expo start --clear

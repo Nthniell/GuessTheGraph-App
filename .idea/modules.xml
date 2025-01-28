@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/GuessTheGraph.iml" filepath="$PROJECT_DIR$/.idea/GuessTheGraph.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/GuessTheGraph-App.iml" filepath="$PROJECT_DIR$/.idea/GuessTheGraph-App.iml" />
     </modules>
   </component>
 </project>

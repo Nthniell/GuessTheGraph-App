@@ -9,7 +9,6 @@ import {
 } from "react-native";
 import Svg, { Path, Line, Text as SvgText } from "react-native-svg";
 import { firebase } from "../config"; // Pastikan Firebase diatur dengan benar
-import { useNavigation } from "@react-navigation/native"; // Navigasi untuk redirect
 
 const GraphDisplay = ({ equation, width, height }) => {
   // Mengubah skala untuk visualisasi yang lebih baik
